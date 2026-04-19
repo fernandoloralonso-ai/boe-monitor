@@ -1,0 +1,53 @@
+{
+  "tematicas": {
+    "Autoescuela / Permisos de Conducir": [
+      "autoescuela",
+      "permiso de conducción",
+      "permiso de conducir",
+      "examen de conducir",
+      "DGT",
+      "Dirección General de Tráfico",
+      "carné de conducir",
+      "licencia de conducción",
+      "prueba de aptitud",
+      "reglamento general de conductores",
+      "RGCon"
+    ],
+    "CAP - Certificado de Aptitud Profesional": [
+      "certificado de aptitud profesional",
+      "CAP",
+      "cualificación inicial",
+      "formación continua conductores",
+      "conductor profesional",
+      "transporte por carretera formación"
+    ],
+    "ADR - Mercancías Peligrosas": [
+      "ADR",
+      "mercancías peligrosas",
+      "transporte de mercancías peligrosas",
+      "acuerdo europeo sobre transporte",
+      "consejero de seguridad",
+      "clasificación de mercancías peligrosas",
+      "etiquetado mercancías peligrosas",
+      "carta de porte ADR"
+    ],
+    "Transporte de Viajeros y Mercancías": [
+      "transporte de viajeros",
+      "transporte de mercancías",
+      "transporte por carretera",
+      "LOTT",
+      "ley de ordenación de transportes",
+      "tacógrafo",
+      "tiempos de conducción",
+      "tiempos de descanso",
+      "cabotaje",
+      "ITV",
+      "inspección técnica de vehículos",
+      "peso máximo autorizado",
+      "vehículo pesado"
+    ]
+  },
+  "extras": [
+    "_descomenta y añade tus propios términos aquí_"
+  ]
+}

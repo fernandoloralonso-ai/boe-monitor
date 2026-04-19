@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOE Monitor · Panel de Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:#0f0f1a; --ink-soft:#1e1e30; --gold:#c9973a; --gold-l:#e2b96f;
+  --muted:#6b6b80; --border:#e0ddd5; --bg:#f7f5f0; --white:#ffffff;
+  --blue:#2471a3; --red:#c0392b; --warn:#e67e22;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;line-height:1.6;}
+
+header{background:var(--ink);position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.5);}
+.header-inner{max-width:1280px;margin:0 auto;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:60px;}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-mark{width:34px;height:34px;background:var(--gold);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:17px;color:var(--ink);font-weight:700;}
+.logo-text{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:#fff;}
+.logo-sub{font-size:9px;color:var(--gold-l);letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.header-nav{display:flex;gap:4px;}
+.nav-btn{padding:6px 14px;border-radius:4px;border:none;background:transparent;color:#888;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;}
+.nav-btn:hover{background:rgba(255,255,255,.07);color:#fff;}
+.nav-btn.active{background:var(--gold);color:var(--ink);font-weight:600;}
+.header-right{font-family:'DM Mono',monospace;font-size:10px;color:#666;text-align:right;}
+.header-right strong{color:var(--gold-l);display:block;}
+
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+.changes-bar{background:var(--warn);color:#fff;padding:10px 28px;font-size:12px;font-family:'DM Mono',monospace;display:none;align-items:center;justify-content:space-between;gap:16px;}
+.changes-bar.visible{display:flex;}
+.changes-bar-actions{display:flex;gap:8px;}
+.btn-sm{padding:5px 14px;border-radius:3px;border:none;cursor:pointer;font-size:11px;font-family:'DM Mono',monospace;font-weight:600;transition:all .15s;}
+.btn-copy{background:rgba(255,255,255,.25);color:#fff;}.btn-copy:hover{background:rgba(255,255,255,.4);}
+.btn-discard{background:rgba(0,0,0,.2);color:#fff;}
+
+.hero{background:linear-gradient(135deg,var(--ink-soft) 0%,#16213e 100%);padding:36px 28px;border-bottom:3px solid var(--gold);}
+.hero-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.kpi{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:20px 22px;position:relative;overflow:hidden;transition:transform .2s,background .2s;}
+.kpi:hover{background:rgba(255,255,255,.07);transform:translateY(-2px);}
+.kpi::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold);}
+.kpi-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#777;font-family:'DM Mono',monospace;margin-bottom:6px;}
+.kpi-value{font-family:'Playfair Display',serif;font-size:36px;color:#fff;line-height:1;margin-bottom:3px;}
+.kpi-value.accent{color:var(--gold-l);}
+.kpi-sub{font-size:10px;color:#555;}
+
+.page{max-width:1280px;margin:0 auto;padding:32px 28px;}
+
+.alertas-toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px;}
+.section-title{font-family:'Playfair Display',serif;font-size:19px;font-weight:600;}
+.filtros{display:flex;gap:6px;flex-wrap:wrap;}
+.filtro-btn{padding:4px 13px;border:1px solid var(--border);border-radius:16px;background:var(--white);color:var(--muted);font-size:11px;cursor:pointer;transition:all .15s;}
+.filtro-btn:hover{border-color:var(--gold);color:var(--ink);}
+.filtro-btn.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+
+.alerta-card{background:var(--white);border:1px solid var(--border);border-radius:6px;margin-bottom:14px;overflow:hidden;transition:box-shadow .2s;}
+.alerta-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07);}
+.alerta-header{padding:12px 18px;background:var(--ink);color:#fff;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.alerta-fecha{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold-l);font-weight:500;}
+.alerta-dia{font-size:11px;color:#666;margin-top:1px;text-transform:capitalize;}
+.alerta-badges{display:flex;gap:7px;align-items:center;}
+.badge{padding:2px 9px;border-radius:10px;font-size:10px;font-weight:500;font-family:'DM Mono',monospace;}
+.badge-total{background:rgba(255,255,255,.1);color:#bbb;}
+.badge-nuevos{background:var(--gold);color:var(--ink);}
+.badge-backfill{background:#2c3e50;color:#95a5a6;}
+.badge-cero{background:rgba(255,255,255,.05);color:#444;}
+.alerta-toggle{color:#555;font-size:16px;transition:transform .2s;}
+.alerta-card.open .alerta-toggle{transform:rotate(180deg);}
+.alerta-body{display:none;overflow-x:auto;}
+.alerta-card.open .alerta-body{display:block;}
+
+.items-table{width:100%;border-collapse:collapse;font-size:12px;}
+.items-table th{padding:7px 12px;text-align:left;background:#f5f4f0;color:var(--muted);font-size:9px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-weight:500;}
+.items-table td{padding:9px 12px;border-bottom:1px solid #f0ede8;vertical-align:top;}
+.items-table tr:last-child td{border-bottom:none;}
+.items-table tr.item-nuevo td{background:#fffbf2;}
+.items-table tr:hover td{background:#faf9f5;}
+.item-titulo a{color:var(--ink);text-decoration:none;font-weight:500;}
+.item-titulo a:hover{color:var(--gold);}
+.item-extracto{color:var(--muted);font-size:10px;margin-top:3px;font-style:italic;}
+.tag-t{display:inline-block;padding:1px 7px;border-radius:3px;font-size:9px;background:#f0ede8;color:var(--muted);font-family:'DM Mono',monospace;}
+.badge-nuevo-row{background:var(--gold);color:var(--ink);padding:1px 7px;border-radius:8px;font-size:9px;font-weight:700;font-family:'DM Mono',monospace;}
+.badge-conocido-row{color:#ccc;font-size:9px;font-family:'DM Mono',monospace;}
+.item-links a{color:var(--blue);text-decoration:none;font-size:10px;font-family:'DM Mono',monospace;}
+.empty-state{padding:60px 24px;text-align:center;color:var(--muted);}
+.empty-icon{font-size:36px;margin-bottom:12px;}
+
+/* Config */
+.config-layout{display:grid;grid-template-columns:1fr 320px;gap:24px;align-items:start;}
+.config-section{background:var(--white);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.config-section+.config-section{margin-top:16px;}
+.config-header{padding:13px 18px;background:var(--ink);color:var(--gold-l);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;}
+.config-body{padding:18px;}
+
+.tematica-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0ede8;}
+.tematica-row:last-of-type{border-bottom:none;}
+.tematica-name{font-size:13px;font-weight:500;flex:1;}
+.tematica-count{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-right:10px;}
+.tematica-actions{display:flex;gap:6px;align-items:center;}
+.btn-expand{background:none;border:1px solid var(--border);border-radius:3px;padding:3px 8px;font-size:10px;color:var(--muted);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+.btn-expand:hover{border-color:var(--gold);color:var(--ink);}
+
+.toggle{position:relative;display:inline-block;width:36px;height:20px;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;cursor:pointer;inset:0;background:#ddd;border-radius:20px;transition:.2s;}
+.toggle-slider::before{content:'';position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.toggle input:checked+.toggle-slider{background:var(--gold);}
+.toggle input:checked+.toggle-slider::before{transform:translateX(16px);}
+
+.kw-panel{display:none;padding:10px 0 4px;}
+.kw-panel.open{display:block;}
+.kw-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #f8f7f3;}
+.kw-row:last-child{border-bottom:none;}
+.kw-text{flex:1;font-size:12px;font-family:'DM Mono',monospace;color:var(--ink);}
+.kw-text.inactive{color:#ccc;text-decoration:line-through;}
+.btn-del{background:none;border:none;color:#ddd;cursor:pointer;font-size:14px;padding:0 4px;transition:color .15s;}
+.btn-del:hover{color:var(--red);}
+.add-kw-row{display:flex;gap:6px;margin-top:10px;}
+.add-kw-input{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:'DM Mono',monospace;outline:none;transition:border .15s;}
+.add-kw-input:focus{border-color:var(--gold);}
+.btn-add-kw{padding:6px 12px;background:var(--ink);color:#fff;border:none;border-radius:4px;font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;white-space:nowrap;}
+.btn-add-kw:hover{background:var(--gold);color:var(--ink);}
+.add-tematica-row{display:flex;gap:6px;margin-top:14px;padding-top:14px;border-top:1px solid var(--border);}
+.add-t-input{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;outline:none;}
+.add-t-input:focus{border-color:var(--gold);}
+.btn-add-t{padding:7px 14px;background:var(--gold);color:var(--ink);border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+
+.config-info{background:#f8f7f3;border:1px solid var(--border);border-radius:6px;padding:16px 18px;font-size:12px;color:#555;line-height:1.7;}
+.config-info h4{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:8px;font-family:'Playfair Display',serif;}
+.config-info code{background:#eee;padding:1px 5px;border-radius:3px;font-family:'DM Mono',monospace;font-size:11px;}
+.config-info ul{padding-left:16px;margin-top:6px;}
+.config-info li{margin-bottom:4px;}
+.config-info+.config-info{margin-top:14px;}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;}
+.stat-block{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:14px 16px;}
+.stat-block-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;}
+.stat-block-value{font-family:'Playfair Display',serif;font-size:28px;color:var(--ink);}
+.stat-block-value.accent{color:var(--gold);}
+.stat-bar-row{margin-bottom:12px;}
+.stat-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--ink);margin-bottom:4px;}
+.stat-bar-label span{color:var(--muted);font-family:'DM Mono',monospace;font-size:10px;}
+.stat-bar{height:4px;background:#eee;border-radius:2px;}
+.stat-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-l));border-radius:2px;transition:width .6s;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.fade-up{animation:fadeUp .3s ease forwards;}
+
+footer{background:var(--ink);color:#444;text-align:center;padding:18px;font-size:10px;font-family:'DM Mono',monospace;margin-top:48px;}
+footer a{color:var(--gold);text-decoration:none;}
+
+@media(max-width:960px){.hero-inner{grid-template-columns:1fr 1fr;}.config-layout{grid-template-columns:1fr;}}
+@media(max-width:640px){.hero-inner{grid-template-columns:1fr;}.hero,.page,.header-inner{padding-left:16px;padding-right:16px;}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-mark">B</div>
+      <div>
+        <div class="logo-text">BOE Monitor</div>
+        <div class="logo-sub">Panel normativo</div>
+      </div>
+    </div>
+    <div class="header-nav">
+      <button class="nav-btn active" onclick="showTab('alertas',this)">📋 Alertas</button>
+      <button class="nav-btn" onclick="showTab('config',this)">⚙️ Configuración</button>
+      <button class="nav-btn" onclick="showTab('stats',this)">📊 Estadísticas</button>
+    </div>
+    <div class="header-right">Última actualización<strong id="last-update">—</strong></div>
+  </div>
+</header>
+
+<div class="changes-bar" id="changes-bar">
+  <div>⚠️ <strong>Cambios pendientes de guardar.</strong> Descarga el archivo y súbelo a <code style="background:rgba(255,255,255,.2);padding:1px 5px;border-radius:3px">docs/user_config.json</code> en tu repositorio GitHub.</div>
+  <div class="changes-bar-actions">
+    <button class="btn-sm btn-copy" onclick="exportarConfig()">⬇ Descargar user_config.json</button>
+    <button class="btn-sm btn-discard" onclick="descartarCambios()">✕ Descartar</button>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="kpi"><div class="kpi-label">Días con alertas</div><div class="kpi-value accent" id="kpi-dias">—</div><div class="kpi-sub">desde inicio del año</div></div>
+    <div class="kpi"><div class="kpi-label">Publicaciones totales</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">ítems relevantes</div></div>
+    <div class="kpi"><div class="kpi-label">Novedades</div><div class="kpi-value accent" id="kpi-nuevos">—</div><div class="kpi-sub">publicaciones nuevas</div></div>
+    <div class="kpi"><div class="kpi-label">Temáticas activas</div><div class="kpi-value" id="kpi-tematicas">—</div><div class="kpi-sub">áreas vigiladas</div></div>
+  </div>
+</div>
+
+<!-- TAB ALERTAS -->
+<div class="tab-panel active" id="tab-alertas">
+  <div class="page">
+    <div class="alertas-toolbar">
+      <div class="section-title">Historial de alertas</div>
+      <div class="filtros" id="filtros-container">
+        <button class="filtro-btn active" onclick="setFiltro('todos',this)">Todas</button>
+      </div>
+    </div>
+    <div id="alertas-container"><div class="empty-state"><div class="empty-icon">⏳</div><p>Cargando…</p></div></div>
+  </div>
+</div>
+
+<!-- TAB CONFIGURACIÓN -->
+<div class="tab-panel" id="tab-config">
+  <div class="page">
+    <div style="margin-bottom:20px">
+      <div class="section-title" style="margin-bottom:6px">Gestión de temáticas y palabras clave</div>
+      <p style="font-size:13px;color:var(--muted)">Activa, desactiva o edita las temáticas y términos que vigila el monitor. Al terminar, descarga el archivo y súbelo a GitHub.</p>
+    </div>
+    <div class="config-layout">
+      <div>
+        <div class="config-section">
+          <div class="config-header">📌 Temáticas <span style="font-size:9px;color:#666">toggle=activa/desactiva · editar=keywords</span></div>
+          <div class="config-body" id="tematicas-container"></div>
+        </div>
+        <div class="config-section">
+          <div class="config-header">➕ Extras — términos sueltos</div>
+          <div class="config-body">
+            <p style="font-size:11px;color:var(--muted);margin-bottom:10px">Palabras que no encajan en ninguna temática. Aparecen agrupadas como "Extras".</p>
+            <div id="extras-container"></div>
+            <div class="add-kw-row" style="margin-top:10px">
+              <input class="add-kw-input" id="new-extra-input" placeholder="ej: eurovignette, semirremolque…" onkeydown="if(event.key==='Enter')addExtra()">
+              <button class="btn-add-kw" onclick="addExtra()">+ Añadir</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="config-info">
+          <h4>¿Cómo aplicar los cambios?</h4>
+          <ul>
+            <li>Edita temáticas y keywords aquí</li>
+            <li>Haz clic en <strong>⬇ Descargar user_config.json</strong></li>
+            <li>Entra a GitHub → carpeta <code>docs/</code></li>
+            <li>Sube el archivo (reemplaza el existente)</li>
+            <li>El monitor lo leerá en la próxima ejecución</li>
+          </ul>
+        </div>
+        <div class="config-info">
+          <h4>Consejos para las keywords</h4>
+          <ul>
+            <li>Busca en título, organismo y sección del BOE</li>
+            <li>No distingue mayúsculas</li>
+            <li>Puedes <strong>desactivar</strong> una keyword sin borrarla</li>
+            <li>Evita siglas muy cortas o ambiguas (ej: "ITV" puede dar falsos positivos)</li>
+          </ul>
+        </div>
+        <div class="config-info" style="background:#fff8e1;border-color:#f9c74f">
+          <h4>⚡ Tras subir el archivo</h4>
+          <p>Para reprocesar el historial con las nuevas keywords, lanza el workflow <code>BOE Backfill</code> manualmente desde GitHub Actions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB ESTADÍSTICAS -->
+<div class="tab-panel" id="tab-stats">
+  <div class="page">
+    <div class="section-title" style="margin-bottom:20px">Estadísticas del año</div>
+    <div class="stats-grid" id="stats-kpis"></div>
+    <div style="background:var(--white);border:1px solid var(--border);border-radius:6px;padding:22px">
+      <div style="font-family:'Playfair Display',serif;font-size:16px;margin-bottom:18px">Publicaciones por temática</div>
+      <div id="stats-bars"></div>
+    </div>
+  </div>
+</div>
+
+<footer>BOE Monitor · Datos de <a href="https://www.boe.es/datosabiertos" target="_blank">boe.es/datosabiertos</a> · Actualización automática vía GitHub Actions</footer>
+
+<script>
+let DATA=null, CONFIG=null, CONFIG_MOD=null;
+const LS='boe_monitor_cfg';
+
+async function init(){
+  try{
+    const [d,c]=await Promise.all([
+      fetch('./data.json?t='+Date.now()),
+      fetch('./user_config.json?t='+Date.now())
+    ]);
+    DATA=await d.json(); CONFIG=await c.json();
+    const ls=localStorage.getItem(LS);
+    CONFIG_MOD=ls?JSON.parse(ls):clone(CONFIG);
+    renderKPIs(); renderFiltros(); renderAlertas(); renderConfig(); renderStats();
+    if(ls) showChanges(true);
+  }catch(e){
+    document.getElementById('alertas-container').innerHTML=
+      '<div class="empty-state"><div class="empty-icon">⚠️</div><p>No se pudieron cargar los datos.<br>Ejecuta el Action al menos una vez.</p></div>';
+  }
+}
+
+function showTab(id,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function renderKPIs(){
+  const a=DATA.alertas||[];
+  const conI=a.filter(x=>x.total>0);
+  const tAct=Object.entries(CONFIG_MOD.tematicas||{}).filter(([,v])=>v.activa!==false).length;
+  document.getElementById('kpi-dias').textContent=conI.length;
+  document.getElementById('kpi-total').textContent=a.reduce((s,x)=>s+(x.total||0),0);
+  document.getElementById('kpi-nuevos').textContent=a.reduce((s,x)=>s+(x.nuevos||0),0);
+  document.getElementById('kpi-tematicas').textContent=tAct;
+  if(DATA.ultima_update){
+    const d=new Date(DATA.ultima_update);
+    document.getElementById('last-update').textContent=
+      d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+
+      d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+function renderFiltros(){
+  const t=[...new Set((DATA.alertas||[]).flatMap(a=>a.tematicas||[]))].sort();
+  const c=document.getElementById('filtros-container');
+  [...c.querySelectorAll('.filtro-btn')].slice(1).forEach(b=>b.remove());
+  t.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='filtro-btn';
+    b.textContent=t.split(' - ')[0].split(' / ')[0];
+    b.onclick=()=>setFiltro(t,b);
+    c.appendChild(b);
+  });
+}
+
+let filtroActivo='todos';
+function setFiltro(f,btn){
+  filtroActivo=f;
+  document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAlertas();
+}
+
+function renderAlertas(){
+  const c=document.getElementById('alertas-container');
+  let alertas=(DATA.alertas||[]).filter(a=>a.total>0);
+  if(filtroActivo!=='todos') alertas=alertas.map(a=>({...a,items:(a.items||[]).filter(i=>i.tematica===filtroActivo)})).filter(a=>a.items.length>0);
+  if(!alertas.length){c.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><p>Sin alertas todavía.</p></div>';return;}
+  c.innerHTML='';
+  alertas.forEach((a,i)=>c.appendChild(mkCard(a,i===0)));
+}
+
+function mkCard(al,open){
+  const d=document.createElement('div');
+  d.className='alerta-card fade-up'+(open?' open':'');
+  const fd=new Date(al.fecha+'T12:00:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const bN=al.nuevos>0?`<span class="badge badge-nuevos">▲ ${al.nuevos} nuevo${al.nuevos>1?'s':''}</span>`:'<span class="badge badge-cero">sin novedades</span>';
+  const bB=al.backfill?'<span class="badge badge-backfill">histórico</span>':'';
+  d.innerHTML=`
+  <div class="alerta-header" onclick="this.parentElement.classList.toggle('open')">
+    <div><div class="alerta-fecha">${al.fecha}</div><div class="alerta-dia">${fd}</div></div>
+    <div class="alerta-badges"><span class="badge badge-total">${al.total} ítem${al.total!==1?'s':''}</span>${bN}${bB}<span class="alerta-toggle">▾</span></div>
+  </div>
+  <div class="alerta-body">${tablaItems(al.items||[])}</div>`;
+  return d;
+}
+
+function tablaItems(items){
+  if(!items.length) return '<p style="padding:16px;color:#aaa;font-size:12px">Sin ítems.</p>';
+  return `<table class="items-table"><thead><tr><th>Título</th><th>Organismo</th><th>Temática</th><th>Estado</th><th>Ver</th></tr></thead><tbody>`+
+  items.map(i=>`<tr class="${i.nuevo?'item-nuevo':''}">
+    <td class="item-titulo"><a href="${i.url_html}" target="_blank">${i.titulo}</a>${i.extracto?`<div class="item-extracto">${i.extracto}</div>`:''}</td>
+    <td style="color:var(--muted);font-size:11px">${i.departamento||'—'}</td>
+    <td><span class="tag-t">${(i.tematica||'').split(' - ')[0].split(' / ')[0]}</span></td>
+    <td style="text-align:center">${i.nuevo?'<span class="badge-nuevo-row">★ NUEVO</span>':'<span class="badge-conocido-row">—</span>'}</td>
+    <td class="item-links"><a href="${i.url_html}" target="_blank">HTML</a>${i.url_pdf?' · <a href="'+i.url_pdf+'" target="_blank">PDF</a>':''}</td>
+  </tr>`).join('')+'</tbody></table>';
+}
+
+// CONFIG
+function renderConfig(){ renderTematicas(); renderExtras(); }
+
+function renderTematicas(){
+  const c=document.getElementById('tematicas-container');
+  const t=CONFIG_MOD.tematicas||{};
+  c.innerHTML='';
+  Object.entries(t).forEach(([nombre,data])=>{
+    const activa=data.activa!==false;
+    const kws=data.keywords||[];
+    const kwA=kws.filter(k=>k.activa!==false).length;
+    const div=document.createElement('div');
+    const id='kwp_'+esc(nombre);
+    div.innerHTML=`
+    <div class="tematica-row">
+      <div class="tematica-name" style="${!activa?'color:var(--muted);text-decoration:line-through':''}">${nombre}</div>
+      <div class="tematica-actions">
+        <span class="tematica-count">${kwA}/${kws.length} kw</span>
+        <button class="btn-expand" onclick="document.getElementById('${id}').classList.toggle('open')">editar ▾</button>
+        <label class="toggle"><input type="checkbox" ${activa?'checked':''} onchange="toggleT('${esc(nombre)}',this.checked)"><span class="toggle-slider"></span></label>
+      </div>
+    </div>
+    <div class="kw-panel" id="${id}">
+      <div id="kwl_${esc(nombre)}"></div>
+      <div class="add-kw-row">
+        <input class="add-kw-input" id="nkw_${esc(nombre)}" placeholder="Nueva keyword…" onkeydown="if(event.key==='Enter')addKw('${esc(nombre)}')">
+        <button class="btn-add-kw" onclick="addKw('${esc(nombre)}')">+ Añadir</button>
+      </div>
+    </div>`;
+    c.appendChild(div);
+    renderKwList(nombre);
+  });
+  const addDiv=document.createElement('div');
+  addDiv.innerHTML=`<div class="add-tematica-row">
+    <input class="add-t-input" id="new-t-inp" placeholder="Nueva temática (ej: Seguridad Vial)">
+    <button class="btn-add-t" onclick="addTematica()">+ Añadir</button>
+  </div>`;
+  c.appendChild(addDiv);
+}
+
+function renderKwList(nombre){
+  const c=document.getElementById('kwl_'+esc(nombre));
+  if(!c) return;
+  const kws=(CONFIG_MOD.tematicas[nombre]&&CONFIG_MOD.tematicas[nombre].keywords)||[];
+  c.innerHTML=kws.map((k,i)=>`<div class="kw-row">
+    <label class="toggle" style="transform:scale(.85);transform-origin:left">
+      <input type="checkbox" ${k.activa!==false?'checked':''} onchange="toggleKw('${esc(nombre)}',${i},this.checked)">
+      <span class="toggle-slider"></span>
+    </label>
+    <span class="kw-text ${k.activa===false?'inactive':''}">${k.texto}</span>
+    <button class="btn-del" onclick="delKw('${esc(nombre)}',${i})">✕</button>
+  </div>`).join('');
+}
+
+function renderExtras(){
+  const c=document.getElementById('extras-container');
+  const e=CONFIG_MOD.extras||[];
+  c.innerHTML=e.length?e.map((x,i)=>{
+    const txt=typeof x==='string'?x:x.texto;
+    const act=typeof x==='string'?true:x.activa!==false;
+    return `<div class="kw-row">
+      <label class="toggle" style="transform:scale(.85);transform-origin:left">
+        <input type="checkbox" ${act?'checked':''} onchange="toggleExtra(${i},this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="kw-text ${!act?'inactive':''}">${txt}</span>
+      <button class="btn-del" onclick="delExtra(${i})">✕</button>
+    </div>`;
+  }).join(''):'<p style="font-size:11px;color:var(--muted);font-style:italic">Sin extras definidos.</p>';
+}
+
+function toggleT(n,v){ const k=unesc(n); CONFIG_MOD.tematicas[k].activa=v; changed(); renderTematicas(); renderKPIs(); }
+function toggleKw(n,i,v){ CONFIG_MOD.tematicas[unesc(n)].keywords[i].activa=v; changed(); renderKwList(unesc(n)); }
+function addKw(n){ const inp=document.getElementById('nkw_'+n); const t=inp.value.trim(); if(!t)return; CONFIG_MOD.tematicas[unesc(n)].keywords.push({texto:t,activa:true}); inp.value=''; changed(); renderKwList(unesc(n)); }
+function delKw(n,i){ CONFIG_MOD.tematicas[unesc(n)].keywords.splice(i,1); changed(); renderKwList(unesc(n)); }
+function addTematica(){ const inp=document.getElementById('new-t-inp'); const t=inp.value.trim(); if(!t||CONFIG_MOD.tematicas[t])return; CONFIG_MOD.tematicas[t]={activa:true,keywords:[]}; inp.value=''; changed(); renderTematicas(); }
+function addExtra(){ const inp=document.getElementById('new-extra-input'); const t=inp.value.trim(); if(!t)return; if(!CONFIG_MOD.extras)CONFIG_MOD.extras=[]; CONFIG_MOD.extras.push({texto:t,activa:true}); inp.value=''; changed(); renderExtras(); }
+function toggleExtra(i,v){ const e=CONFIG_MOD.extras[i]; CONFIG_MOD.extras[i]=typeof e==='string'?{texto:e,activa:v}:{...e,activa:v}; changed(); renderExtras(); }
+function delExtra(i){ CONFIG_MOD.extras.splice(i,1); changed(); renderExtras(); }
+
+function changed(){ localStorage.setItem(LS,JSON.stringify(CONFIG_MOD)); showChanges(true); }
+function showChanges(v){ document.getElementById('changes-bar').classList.toggle('visible',v); }
+function exportarConfig(){ const b=new Blob([JSON.stringify(CONFIG_MOD,null,2)],{type:'application/json'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download='user_config.json'; a.click(); URL.revokeObjectURL(u); }
+function descartarCambios(){ CONFIG_MOD=clone(CONFIG); localStorage.removeItem(LS); showChanges(false); renderConfig(); renderKPIs(); }
+
+function renderStats(){
+  const a=DATA.alertas||[];
+  const cI=a.filter(x=>x.total>0);
+  const tI=a.reduce((s,x)=>s+(x.total||0),0);
+  const tN=a.reduce((s,x)=>s+(x.nuevos||0),0);
+  document.getElementById('stats-kpis').innerHTML=[
+    ['Días vigilados',cI.length,false],['Total publicaciones',tI,false],
+    ['Novedades',tN,true],['Días sin resultados',a.length-cI.length,false]
+  ].map(([l,v,ac])=>`<div class="stat-block"><div class="stat-block-label">${l}</div><div class="stat-block-value ${ac?'accent':''}">${v}</div></div>`).join('');
+  const stats=DATA.stats||{};
+  const mx=Math.max(...Object.values(stats),1);
+  document.getElementById('stats-bars').innerHTML=Object.entries(stats).sort((a,b)=>b[1]-a[1]).map(([t,n])=>`
+    <div class="stat-bar-row">
+      <div class="stat-bar-label">${t}<span>${n}</span></div>
+      <div class="stat-bar"><div class="stat-fill" style="width:${Math.round(n/mx*100)}%"></div></div>
+    </div>`).join('')||'<p style="color:var(--muted);font-size:13px">Sin datos aún.</p>';
+}
+
+// Utils
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function esc(s){return s.replace(/[^a-zA-Z0-9]/g,'_');}
+// Inverse esc no es posible perfectamente, usamos un Map
+const _nameMap={};
+function escN(n){const k=esc(n);_nameMap[k]=n;return k;}
+function unesc(k){return _nameMap[k]||k;}
+
+// Override esc para guardar nombre real
+const _origEsc=esc;
+// Reemplazar renderTematicas para usar escN
+(function(){
+  const orig=renderTematicas;
+  // ya usan esc() inline, así que hacemos un truco: pre-poblamos _nameMap
+  const _preload=function(){
+    Object.keys(CONFIG_MOD.tematicas||{}).forEach(n=>{_nameMap[esc(n)]=n;});
+  };
+  window._preloadMap=_preload;
+})();
+
+init();
+</script>
+</body>
+</html>

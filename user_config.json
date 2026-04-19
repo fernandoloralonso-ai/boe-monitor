@@ -1,0 +1,63 @@
+{
+  "tematicas": {
+    "Autoescuela / Permisos de Conducir": {
+      "activa": true,
+      "keywords": [
+        { "texto": "autoescuela",                    "activa": true },
+        { "texto": "permiso de conducción",           "activa": true },
+        { "texto": "permiso de conducir",             "activa": true },
+        { "texto": "examen de conducir",              "activa": true },
+        { "texto": "DGT",                             "activa": true },
+        { "texto": "Dirección General de Tráfico",    "activa": true },
+        { "texto": "carné de conducir",               "activa": true },
+        { "texto": "licencia de conducción",          "activa": true },
+        { "texto": "prueba de aptitud",               "activa": true },
+        { "texto": "reglamento general de conductores","activa": true },
+        { "texto": "RGCon",                           "activa": true }
+      ]
+    },
+    "CAP - Certificado de Aptitud Profesional": {
+      "activa": true,
+      "keywords": [
+        { "texto": "certificado de aptitud profesional", "activa": true },
+        { "texto": "CAP",                               "activa": true },
+        { "texto": "cualificación inicial",             "activa": true },
+        { "texto": "formación continua conductores",    "activa": true },
+        { "texto": "conductor profesional",             "activa": true },
+        { "texto": "transporte por carretera formación","activa": true }
+      ]
+    },
+    "ADR - Mercancías Peligrosas": {
+      "activa": true,
+      "keywords": [
+        { "texto": "ADR",                                      "activa": true },
+        { "texto": "mercancías peligrosas",                    "activa": true },
+        { "texto": "transporte de mercancías peligrosas",      "activa": true },
+        { "texto": "acuerdo europeo sobre transporte",         "activa": true },
+        { "texto": "consejero de seguridad",                   "activa": true },
+        { "texto": "clasificación de mercancías peligrosas",   "activa": true },
+        { "texto": "etiquetado mercancías peligrosas",         "activa": true },
+        { "texto": "carta de porte ADR",                       "activa": true }
+      ]
+    },
+    "Transporte de Viajeros y Mercancías": {
+      "activa": true,
+      "keywords": [
+        { "texto": "transporte de viajeros",        "activa": true },
+        { "texto": "transporte de mercancías",      "activa": true },
+        { "texto": "transporte por carretera",      "activa": true },
+        { "texto": "LOTT",                          "activa": true },
+        { "texto": "ley de ordenación de transportes","activa": true },
+        { "texto": "tacógrafo",                     "activa": true },
+        { "texto": "tiempos de conducción",         "activa": true },
+        { "texto": "tiempos de descanso",           "activa": true },
+        { "texto": "cabotaje",                      "activa": true },
+        { "texto": "ITV",                           "activa": true },
+        { "texto": "inspección técnica de vehículos","activa": true },
+        { "texto": "peso máximo autorizado",        "activa": true },
+        { "texto": "vehículo pesado",               "activa": true }
+      ]
+    }
+  },
+  "extras": []
+}
