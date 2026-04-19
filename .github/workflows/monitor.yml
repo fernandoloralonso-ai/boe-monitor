@@ -29,12 +29,13 @@ jobs:
           EMAIL_SMTP_SERVER:   ${{ secrets.EMAIL_SMTP_SERVER }}
           EMAIL_SMTP_PORT:     ${{ secrets.EMAIL_SMTP_PORT }}
           EMAIL_DESTINATARIOS: ${{ secrets.EMAIL_DESTINATARIOS }}
+          ANTHROPIC_API_KEY:   ${{ secrets.ANTHROPIC_API_KEY }}
         run: python boe_monitor.py
 
       - name: Guardar cambios
         run: |
           git config user.name  "BOE Monitor Bot"
           git config user.email "bot@boe-monitor"
-          git add historial/ data.json
+          git add historial/ data.json normas_estado.json || true
           git diff --staged --quiet || git commit -m "BOE Monitor: $(date +'%Y-%m-%d')"
           git push
