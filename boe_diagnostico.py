@@ -1,82 +1,47 @@
 #!/usr/bin/env python3
-"""
-Script de diagnóstico — ejecutar desde GitHub Actions para ver
-qué devuelve exactamente la API del BOE y si las keywords detectan algo.
-"""
-import requests, xml.etree.ElementTree as ET, json
-from pathlib import Path
+"""Diagnóstico v2 — imprime XML crudo para ver estructura real de la API"""
+import requests, xml.etree.ElementTree as ET
 
-BASE = Path(__file__).parent
+HEADERS = {"Accept": "application/xml", "User-Agent": "BOEMonitor/3.0"}
 
-# Probar varios endpoints y fechas
-FECHAS_PRUEBA = ['20260113', '20260114', '20260115', '20260116', '20260117']
-ENDPOINTS = [
-    "https://www.boe.es/datosabiertos/api/boe/sumario/{fecha}",
-    "https://www.boe.es/boe/dias/{year}/{month}/{day}/index.php?lang=es",
-]
+fechas = ["20260112", "20260113", "20260114", "20260115"]
 
-print("=" * 60)
-print("DIAGNÓSTICO API BOE")
-print("=" * 60)
-
-for fecha in FECHAS_PRUEBA:
+for fecha in fechas:
     url = f"https://www.boe.es/datosabiertos/api/boe/sumario/{fecha}"
+    print(f"\n{'='*50}")
+    print(f"Fecha: {fecha} | URL: {url}")
     try:
-        r = requests.get(url, timeout=20,
-            headers={"Accept": "application/xml", "User-Agent": "BOEMonitor/2.0"})
-        print(f"\n{fecha}: status={r.status_code}, bytes={len(r.content)}")
+        r = requests.get(url, timeout=20, headers=HEADERS)
+        print(f"Status: {r.status_code} | Bytes: {len(r.content)}")
 
         if r.status_code == 200 and r.content:
+            print("XML RAW (primeros 2000 chars):")
+            print(r.text[:2000])
+
             try:
                 root = ET.fromstring(r.content)
-                items = list(root.iter('item'))
-                print(f"  Items totales: {len(items)}")
+                print(f"\nRoot tag: {root.tag}")
+                tags = set(el.tag for el in root.iter())
+                print(f"Tags encontrados: {tags}")
+
+                items = list(root.iter("item"))
+                print(f"Items (tag 'item'): {len(items)}")
 
                 if items:
-                    item = items[0]
-                    print(f"  Tags del item: {[c.tag for c in item]}")
-                    print(f"  titulo: {item.findtext('titulo', 'N/A')[:80]}")
-                    print(f"  urlHtml: {item.findtext('urlHtml', 'N/A')}")
+                    print("\nPrimer item XML completo:")
+                    print(ET.tostring(items[0], encoding='unicode'))
+                    break
 
-                    # Mostrar XML crudo del primer item
-                    raw = ET.tostring(item, encoding='unicode')
-                    print(f"  XML crudo (500 chars): {raw[:500]}")
-
-                    # Probar keywords básicas
-                    kws = ['dgt', 'tráfico', 'transporte', 'conducir', 'adr', 'cap']
-                    for kw in kws:
-                        hits = [i for i in items
-                                if kw in (i.findtext('titulo','') or '').lower()]
-                        if hits:
-                            print(f"  Keyword '{kw}': {len(hits)} hits")
-                            print(f"    Ejemplo: {hits[0].findtext('titulo','')[:80]}")
+                for tag in ["Item", "ITEM", "entrada", "disposicion", "anuncio"]:
+                    found = list(root.iter(tag))
+                    if found:
+                        print(f"Tag alternativo '{tag}': {len(found)} encontrados")
+                        print(ET.tostring(found[0], encoding='unicode'))
 
             except ET.ParseError as e:
-                print(f"  Error XML: {e}")
-                print(f"  Respuesta raw (200 chars): {r.text[:200]}")
-        elif r.status_code != 200:
-            print(f"  Respuesta: {r.text[:200]}")
+                print(f"Error XML parse: {e}")
+        else:
+            print(f"Respuesta: {r.text[:500]}")
 
     except Exception as e:
-        print(f"\n{fecha}: ERROR - {e}")
-
-# Mostrar keywords cargadas
-print("\n" + "=" * 60)
-print("KEYWORDS CARGADAS")
-print("=" * 60)
-cfg_file = BASE / "user_config.json"
-kw_file  = BASE / "keywords.json"
-src = cfg_file if cfg_file.exists() else kw_file
-with open(src, encoding="utf-8") as f:
-    data = json.load(f)
-
-total_kw = 0
-for tematica, val in data.get("tematicas", {}).items():
-    kws = val.get("keywords", val) if isinstance(val, dict) else val
-    activas = [k.get("texto",k) if isinstance(k,dict) else k for k in kws
-               if (k.get("activa",True) if isinstance(k,dict) else True)]
-    print(f"  {tematica}: {len(activas)} keywords")
-    for k in activas[:3]:
-        print(f"    - '{k}'")
-    total_kw += len(activas)
-print(f"Total: {total_kw} keywords")
+        print(f"Error: {e}")
