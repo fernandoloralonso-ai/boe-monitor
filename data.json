@@ -1,6 +1,15 @@
 {
-  "alertas": [],
+  "alertas": [
+    {
+      "fecha": "2026-04-19",
+      "total": 0,
+      "nuevos": 0,
+      "tematicas": [],
+      "items": [],
+      "ejecutado": "2026-04-19T11:43:47.817525"
+    }
+  ],
   "stats": {},
-  "ultima_update": null,
+  "ultima_update": "2026-04-19T11:43:47.817542",
   "total_alertas": 0
 }
