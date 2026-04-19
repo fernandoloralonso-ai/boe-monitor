@@ -2,14 +2,49 @@
   "alertas": [
     {
       "fecha": "2026-04-19",
-      "total": 0,
-      "nuevos": 0,
-      "tematicas": [],
-      "items": [],
-      "ejecutado": "2026-04-19T21:21:22.149407"
+      "total": 3,
+      "nuevos": 3,
+      "tematicas": [
+        "Código 020 · Tráfico y Seguridad Vial"
+      ],
+      "items": [
+        {
+          "id": "BOE-A-2015-11722",
+          "titulo": "RDL 6/2015 — Ley sobre Tráfico, Circulación y Seguridad Vial",
+          "departamento": "Código 020 · Tráfico y Seguridad Vial",
+          "tematica": "Código 020 · Tráfico y Seguridad Vial",
+          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722",
+          "url_pdf": "",
+          "extracto": "No se pudo generar el resumen automático.",
+          "nuevo": true
+        },
+        {
+          "id": "BOE-A-2003-23514",
+          "titulo": "RD 1428/2003 — Reglamento General de Circulación",
+          "departamento": "Código 020 · Tráfico y Seguridad Vial",
+          "tematica": "Código 020 · Tráfico y Seguridad Vial",
+          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2003-23514",
+          "url_pdf": "",
+          "extracto": "No se pudo generar el resumen automático.",
+          "nuevo": true
+        },
+        {
+          "id": "BOE-A-2009-9481",
+          "titulo": "RD 818/2009 — Reglamento General de Conductores",
+          "departamento": "Código 020 · Tráfico y Seguridad Vial",
+          "tematica": "Código 020 · Tráfico y Seguridad Vial",
+          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2009-9481",
+          "url_pdf": "",
+          "extracto": "No se pudo generar el resumen automático.",
+          "nuevo": true
+        }
+      ],
+      "ejecutado": "2026-04-19T21:32:53.325344"
     }
   ],
-  "stats": {},
-  "ultima_update": "2026-04-19T21:21:22.149424",
+  "stats": {
+    "Código 020 · Tráfico y Seguridad Vial": 3
+  },
+  "ultima_update": "2026-04-19T21:32:53.325367",
   "total_alertas": 0
 }
