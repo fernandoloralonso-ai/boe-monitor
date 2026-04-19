@@ -4,6 +4,13 @@ on:
   schedule:
     - cron: '0 8 * * *'
   workflow_dispatch:
+    inputs:
+      forzar_busqueda_normas:
+        description: 'Forzar búsqueda semanal de normas (aunque no sea lunes)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
 
 permissions:
   contents: write
@@ -24,12 +31,13 @@ jobs:
 
       - name: Ejecutar monitor
         env:
-          EMAIL_USUARIO:       ${{ secrets.EMAIL_USUARIO }}
-          EMAIL_PASSWORD:      ${{ secrets.EMAIL_PASSWORD }}
-          EMAIL_SMTP_SERVER:   ${{ secrets.EMAIL_SMTP_SERVER }}
-          EMAIL_SMTP_PORT:     ${{ secrets.EMAIL_SMTP_PORT }}
-          EMAIL_DESTINATARIOS: ${{ secrets.EMAIL_DESTINATARIOS }}
-          ANTHROPIC_API_KEY:   ${{ secrets.ANTHROPIC_API_KEY }}
+          EMAIL_USUARIO:            ${{ secrets.EMAIL_USUARIO }}
+          EMAIL_PASSWORD:           ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_SMTP_SERVER:        ${{ secrets.EMAIL_SMTP_SERVER }}
+          EMAIL_SMTP_PORT:          ${{ secrets.EMAIL_SMTP_PORT }}
+          EMAIL_DESTINATARIOS:      ${{ secrets.EMAIL_DESTINATARIOS }}
+          ANTHROPIC_API_KEY:        ${{ secrets.ANTHROPIC_API_KEY }}
+          FORZAR_BUSQUEDA_NORMAS:   ${{ inputs.forzar_busqueda_normas || 'false' }}
         run: python boe_monitor.py
 
       - name: Guardar cambios
