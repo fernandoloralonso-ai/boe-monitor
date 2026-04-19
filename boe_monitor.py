@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-BOE Monitor v3 — Filtrado dual: departamento + keywords
-Detecta publicaciones relevantes aunque el título no contenga
-la keyword exacta, usando el departamento/organismo como filtro adicional.
+BOE Monitor v4 — Estructura XML corregida según API real del BOE
+Tags reales: identificador, titulo (en control), url_pdf, url_html
 """
 
 import os, json, smtplib, logging, xml.etree.ElementTree as ET
@@ -24,7 +23,7 @@ BOE_API      = "https://www.boe.es/datosabiertos/api/boe/sumario/{fecha}"
 BOE_ITEM_API = "https://www.boe.es/datosabiertos/api/boe/id/{id}"
 BOE_BASE     = "https://www.boe.es"
 MAX_ALERTAS  = 400
-HEADERS      = {"Accept": "application/xml", "User-Agent": "BOEMonitor/3.0"}
+HEADERS      = {"Accept": "application/xml", "User-Agent": "BOEMonitor/4.0"}
 
 
 def get_email_cfg():
@@ -42,8 +41,7 @@ def cargar_config():
         return json.load(f)
 
 
-def build_kw_map(cfg) -> dict:
-    """Devuelve {keyword_lower: tematica}"""
+def build_kw_map(cfg):
     mapa = {}
     for tematica, val in cfg.get("tematicas", {}).items():
         if isinstance(val, dict) and val.get("activa", True) is False:
@@ -63,35 +61,23 @@ def build_kw_map(cfg) -> dict:
     return mapa
 
 
-def build_dep_list(cfg) -> list:
-    """Lista de fragmentos de departamentos a vigilar (lowercase)"""
+def build_dep_list(cfg):
     return [d.lower() for d in cfg.get("departamentos_vigilados", [])]
 
 
-def es_relevante(item: dict, kw_map: dict, dep_list: list) -> str | None:
-    """
-    Devuelve el nombre de la temática si el ítem es relevante, None si no.
-    Lógica dual:
-      1. Si el título/sección contiene una keyword → relevante
-      2. Si el departamento está en la lista vigilada → relevante (temática 'Departamento vigilado')
-    """
+def es_relevante(item, kw_map, dep_list):
     texto = f"{item['titulo']} {item['seccion']}".lower()
-
-    # Filtro por keyword
-    for kw, tematica in kw_map.items():
+    for kw, t in kw_map.items():
         if kw in texto:
-            return tematica
-
-    # Filtro por departamento
+            return t
     dep = item.get("departamento", "").lower()
     for d in dep_list:
         if d in dep:
             return "Departamento vigilado"
-
     return None
 
 
-def obtener_sumario(fecha: str) -> list:
+def obtener_sumario(fecha):
     try:
         r = requests.get(BOE_API.format(fecha=fecha), timeout=30, headers=HEADERS)
         if r.status_code == 404: return []
@@ -100,40 +86,37 @@ def obtener_sumario(fecha: str) -> list:
     except Exception as e:
         log.warning(f"Error sumario {fecha}: {e}"); return []
 
-    # Construir mapa de contexto (seccion, departamento) por id
-    ctx = {}
-    for sec in root.iter("seccion"):
-        ns = sec.get("nombre", sec.get("id", ""))
-        for dep in sec.iter("departamento"):
-            nd = dep.findtext("nombre", "")
-            for it in dep.iter("item"):
-                bid = it.findtext("id", "").strip()
-                if bid:
-                    ctx[bid] = {"seccion": ns, "departamento": nd}
-
     items = []
-    for item in root.iter("item"):
-        bid = item.findtext("id",      "").strip()
-        tit = item.findtext("titulo",  "").strip()
-        uh  = item.findtext("urlHtml", "").strip()
-        up  = item.findtext("urlPdf",  "").strip()
-        if not bid or not tit: continue
-        c = ctx.get(bid, {})
-        items.append({
-            "id":           bid,
-            "titulo":       tit,
-            "url_html":     BOE_BASE + uh if uh.startswith("/") else uh,
-            "url_pdf":      BOE_BASE + up if up.startswith("/") else up,
-            "departamento": c.get("departamento", ""),
-            "seccion":      c.get("seccion", ""),
-            "extracto":     "",
-        })
+    # Estructura real: response > data > sumario > diario > seccion > departamento > epigrafe > item
+    # El tag item contiene: identificador, control (con titulo), url_pdf, url_html, url_xml
+    for seccion in root.iter("seccion"):
+        nom_sec = seccion.get("nombre", seccion.get("codigo", ""))
+        for dep_el in seccion.iter("departamento"):
+            nom_dep = dep_el.get("nombre", dep_el.get("codigo", ""))
+            for item in dep_el.iter("item"):
+                bid  = item.findtext("identificador", "").strip()
+                # titulo está dentro de <control><titulo>
+                ctrl = item.find("control")
+                tit  = ctrl.findtext("titulo", "").strip() if ctrl is not None else item.findtext("titulo","").strip()
+                uh   = item.findtext("url_html", "").strip()
+                up   = item.findtext("url_pdf",  "").strip()
+                if not bid or not tit:
+                    continue
+                items.append({
+                    "id":           bid,
+                    "titulo":       tit,
+                    "url_html":     BOE_BASE + uh if uh.startswith("/") else uh,
+                    "url_pdf":      BOE_BASE + up if up.startswith("/") else up,
+                    "departamento": nom_dep,
+                    "seccion":      nom_sec,
+                    "extracto":     "",
+                })
 
     log.info(f"Sumario {fecha}: {len(items)} ítems totales")
     return items
 
 
-def obtener_extracto(bid: str) -> str:
+def obtener_extracto(bid):
     try:
         r = requests.get(BOE_ITEM_API.format(id=bid), timeout=15, headers=HEADERS)
         r.raise_for_status()
@@ -148,8 +131,7 @@ def obtener_extracto(bid: str) -> str:
     return ""
 
 
-def filtrar(items: list, kw_map: dict, dep_list: list) -> dict:
-    """Devuelve {tematica: [item]}"""
+def filtrar(items, kw_map, dep_list):
     res = {}
     for item in items:
         t = es_relevante(item, kw_map, dep_list)
@@ -158,13 +140,13 @@ def filtrar(items: list, kw_map: dict, dep_list: list) -> dict:
     return res
 
 
-def cargar_historial(fecha: str) -> set:
+def cargar_historial(fecha):
     HIST_DIR.mkdir(exist_ok=True)
     p = HIST_DIR / f"{fecha}.json"
     return set(json.loads(p.read_text(encoding="utf-8"))) if p.exists() else set()
 
 
-def guardar_historial(fecha: str, ids: set):
+def guardar_historial(fecha, ids):
     HIST_DIR.mkdir(exist_ok=True)
     (HIST_DIR / f"{fecha}.json").write_text(
         json.dumps(list(ids), ensure_ascii=False), encoding="utf-8")
@@ -194,26 +176,24 @@ def generar_email_html(fecha_str, por_tematica, es_nuevo):
                 <a href="{item["url_html"]}" style="color:#2471a3;font-size:12px">HTML</a>{pdf}
               </td>
             </tr>'''
-    tabla = f'''<table style="width:100%;border-collapse:collapse;font-size:13px">
-      <tr style="background:#f8f8f8">
-        <th style="padding:10px 14px;text-align:left;color:#666;border-bottom:2px solid #eee">Título</th>
-        <th style="padding:10px 14px;text-align:left;color:#666;border-bottom:2px solid #eee">Organismo</th>
-        <th style="padding:10px 14px;text-align:center;color:#666;border-bottom:2px solid #eee">Estado</th>
-        <th style="padding:10px 14px;color:#666;border-bottom:2px solid #eee">Ver</th>
-      </tr>{filas}</table>''' if por_tematica else '<p style="padding:20px;color:#aaa;font-style:italic">Sin publicaciones relevantes hoy.</p>'
-    return f'''<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:20px;background:#f0f0f0;font-family:Georgia,serif">
-<div style="max-width:860px;margin:0 auto;background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12)">
-  <div style="background:#1a1a2e;padding:28px 30px">
-    <div style="color:#e2b96f;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">Monitor Normativo</div>
-    <h1 style="margin:0;color:#fff;font-size:24px;font-weight:400">BOE · {fecha_fmt}</h1>
-    <p style="margin:8px 0 0;color:#aaa;font-size:13px">{total} publicación(es) · <strong style="color:#e2b96f">{nuevos} nueva(s)</strong></p>
-  </div>
-  {tabla}
-  <div style="padding:16px 30px;background:#f8f8f8;font-size:11px;color:#aaa;text-align:center">
-    BOE Monitor · {datetime.now().strftime("%d/%m/%Y %H:%M")} · <a href="https://www.boe.es" style="color:#aaa">boe.es</a>
-  </div>
-</div></body></html>'''
+    tabla = (f'<table style="width:100%;border-collapse:collapse;font-size:13px">'
+             f'<tr style="background:#f8f8f8">'
+             f'<th style="padding:10px 14px;text-align:left;color:#666;border-bottom:2px solid #eee">Título</th>'
+             f'<th style="padding:10px 14px;text-align:left;color:#666;border-bottom:2px solid #eee">Organismo</th>'
+             f'<th style="padding:10px 14px;text-align:center;color:#666;border-bottom:2px solid #eee">Estado</th>'
+             f'<th style="padding:10px 14px;color:#666;border-bottom:2px solid #eee">Ver</th>'
+             f'</tr>{filas}</table>') if por_tematica else '<p style="padding:20px;color:#aaa;font-style:italic">Sin publicaciones relevantes hoy.</p>'
+    return (f'<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"></head>'
+            f'<body style="margin:0;padding:20px;background:#f0f0f0;font-family:Georgia,serif">'
+            f'<div style="max-width:860px;margin:0 auto;background:#fff;border-radius:4px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.12)">'
+            f'<div style="background:#1a1a2e;padding:28px 30px">'
+            f'<div style="color:#e2b96f;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:8px">Monitor Normativo</div>'
+            f'<h1 style="margin:0;color:#fff;font-size:24px;font-weight:400">BOE · {fecha_fmt}</h1>'
+            f'<p style="margin:8px 0 0;color:#aaa;font-size:13px">{total} publicación(es) · <strong style="color:#e2b96f">{nuevos} nueva(s)</strong></p>'
+            f'</div>{tabla}'
+            f'<div style="padding:16px 30px;background:#f8f8f8;font-size:11px;color:#aaa;text-align:center">'
+            f'BOE Monitor · {datetime.now().strftime("%d/%m/%Y %H:%M")} · <a href="https://www.boe.es" style="color:#aaa">boe.es</a>'
+            f'</div></div></body></html>')
 
 
 def enviar_email(asunto, html, cfg):
@@ -229,7 +209,7 @@ def enviar_email(asunto, html, cfg):
     log.info(f"Email enviado a: {', '.join(cfg['destinatarios'])}")
 
 
-def cargar_data() -> dict:
+def cargar_data():
     if DATA_FILE.exists():
         try: return json.loads(DATA_FILE.read_text(encoding="utf-8"))
         except: pass
@@ -274,7 +254,7 @@ def main():
     historial = cargar_historial(fecha_str)
     email_cfg = get_email_cfg()
 
-    log.info(f"Keywords: {len(kw_map)} | Departamentos vigilados: {len(dep_list)}")
+    log.info(f"Keywords: {len(kw_map)} | Departamentos: {len(dep_list)}")
 
     items = obtener_sumario(fecha_str)
     if not items:

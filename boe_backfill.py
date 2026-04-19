@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""
-BOE Backfill v3 — Filtrado dual: departamento + keywords
-Recupera todo el año en curso procesando cada día laborable.
-"""
+"""BOE Backfill v4 — Estructura XML corregida"""
 
 import os, json, logging, time, xml.etree.ElementTree as ET
 from datetime import datetime, timedelta, date
@@ -19,7 +16,7 @@ DATA_FILE = BASE / "data.json"
 
 BOE_API  = "https://www.boe.es/datosabiertos/api/boe/sumario/{fecha}"
 BOE_BASE = "https://www.boe.es"
-HEADERS  = {"Accept": "application/xml", "User-Agent": "BOEMonitor/3.0-backfill"}
+HEADERS  = {"Accept": "application/xml", "User-Agent": "BOEMonitor/4.0-backfill"}
 MAX      = 400
 SLEEP    = 1.2
 
@@ -74,28 +71,26 @@ def obtener_sumario(fecha):
     except Exception as e:
         log.warning(f"  Error {fecha}: {e}"); return []
 
-    ctx = {}
-    for sec in root.iter("seccion"):
-        ns = sec.get("nombre", sec.get("id",""))
-        for dep in sec.iter("departamento"):
-            nd = dep.findtext("nombre","")
-            for it in dep.iter("item"):
-                bid = it.findtext("id","").strip()
-                if bid: ctx[bid] = {"seccion": ns, "departamento": nd}
-
     items = []
-    for item in root.iter("item"):
-        bid = item.findtext("id","").strip()
-        tit = item.findtext("titulo","").strip()
-        uh  = item.findtext("urlHtml","").strip()
-        up  = item.findtext("urlPdf","").strip()
-        if not bid or not tit: continue
-        c = ctx.get(bid,{})
-        items.append({"id":bid,"titulo":tit,
-                      "url_html":BOE_BASE+uh if uh.startswith("/") else uh,
-                      "url_pdf": BOE_BASE+up if up.startswith("/") else up,
-                      "departamento":c.get("departamento",""),
-                      "seccion":c.get("seccion","")})
+    for seccion in root.iter("seccion"):
+        nom_sec = seccion.get("nombre", seccion.get("codigo", ""))
+        for dep_el in seccion.iter("departamento"):
+            nom_dep = dep_el.get("nombre", dep_el.get("codigo", ""))
+            for item in dep_el.iter("item"):
+                bid  = item.findtext("identificador", "").strip()
+                ctrl = item.find("control")
+                tit  = ctrl.findtext("titulo", "").strip() if ctrl is not None else item.findtext("titulo","").strip()
+                uh   = item.findtext("url_html", "").strip()
+                up   = item.findtext("url_pdf",  "").strip()
+                if not bid or not tit: continue
+                items.append({
+                    "id":           bid,
+                    "titulo":       tit,
+                    "url_html":     BOE_BASE + uh if uh.startswith("/") else uh,
+                    "url_pdf":      BOE_BASE + up if up.startswith("/") else up,
+                    "departamento": nom_dep,
+                    "seccion":      nom_sec,
+                })
     return items
 
 
@@ -104,7 +99,7 @@ def filtrar(items, kw_map, dep_list):
     for item in items:
         t = es_relevante(item, kw_map, dep_list)
         if t:
-            res.setdefault(t,[]).append(item)
+            res.setdefault(t, []).append(item)
     return res
 
 
@@ -112,7 +107,7 @@ def cargar_data():
     if DATA_FILE.exists():
         try: return json.loads(DATA_FILE.read_text(encoding="utf-8"))
         except: pass
-    return {"alertas":[],"stats":{}}
+    return {"alertas": [], "stats": {}}
 
 
 def guardar_data(data):
@@ -122,8 +117,8 @@ def guardar_data(data):
 def recalcular(data):
     stats = {}
     for a in data["alertas"]:
-        for i in a.get("items",[]):
-            stats[i["tematica"]] = stats.get(i["tematica"],0)+1
+        for i in a.get("items", []):
+            stats[i["tematica"]] = stats.get(i["tematica"], 0) + 1
     data["stats"] = stats
     data["ultima_update"] = datetime.now().isoformat()
     data["total_alertas"] = len(data["alertas"])
@@ -131,41 +126,36 @@ def recalcular(data):
 
 def procesar_dia(fecha_str, kw_map, dep_list, data):
     HIST_DIR.mkdir(exist_ok=True)
-    hp = HIST_DIR / f"{fecha_str}.json"
-
-    # Aunque exista historial, reprocesar si viene del backfill
     items = obtener_sumario(fecha_str)
-    if not items:
-        return False
+    if not items: return False
 
-    # Guardar historial de todos los ids
-    hp.write_text(json.dumps([i["id"] for i in items], ensure_ascii=False), encoding="utf-8")
+    (HIST_DIR / f"{fecha_str}.json").write_text(
+        json.dumps([i["id"] for i in items], ensure_ascii=False), encoding="utf-8")
 
     por_t = filtrar(items, kw_map, dep_list)
-    if not por_t:
-        return False
+    if not por_t: return False
 
     items_planos = []
     for t, tems in por_t.items():
         for item in tems:
             items_planos.append({
-                "id":item["id"],"titulo":item["titulo"],
-                "departamento":item["departamento"],"tematica":t,
-                "url_html":item["url_html"],"url_pdf":item.get("url_pdf",""),
-                "extracto":"","nuevo":True
+                "id": item["id"], "titulo": item["titulo"],
+                "departamento": item["departamento"], "tematica": t,
+                "url_html": item["url_html"], "url_pdf": item.get("url_pdf",""),
+                "extracto": "", "nuevo": True
             })
 
     fd = f"{fecha_str[:4]}-{fecha_str[4:6]}-{fecha_str[6:]}"
-    entrada = {"fecha":fd,"total":len(items_planos),"nuevos":len(items_planos),
-               "tematicas":list(por_t.keys()),"items":items_planos,
-               "ejecutado":datetime.now().isoformat(),"backfill":True}
+    entrada = {"fecha": fd, "total": len(items_planos), "nuevos": len(items_planos),
+               "tematicas": list(por_t.keys()), "items": items_planos,
+               "ejecutado": datetime.now().isoformat(), "backfill": True}
     data["alertas"] = [a for a in data["alertas"] if a["fecha"] != fd]
     data["alertas"].append(entrada)
     return True
 
 
 def main():
-    hoy   = date.today()
+    hoy    = date.today()
     year_s = os.environ.get("BACKFILL_YEAR","").strip()
     year   = int(year_s) if year_s.isdigit() else hoy.year
     mon_s  = os.environ.get("BACKFILL_FROM_MONTH","1").strip()
@@ -179,11 +169,10 @@ def main():
     kw_map   = build_kw_map(cfg)
     dep_list = build_dep_list(cfg)
 
-    log.info(f"Backfill: {f_ini} → {f_fin} ({total} días)")
+    log.info(f"Backfill v4: {f_ini} → {f_fin} ({total} días)")
     log.info(f"Keywords: {len(kw_map)} | Departamentos: {len(dep_list)}")
 
     data = cargar_data()
-    # Limpiar alertas de backfill previas para reprocesar limpio
     data["alertas"] = [a for a in data["alertas"] if not a.get("backfill")]
 
     proc = 0; con_items = 0
@@ -195,26 +184,25 @@ def main():
         try:
             if procesar_dia(fs, kw_map, dep_list, data):
                 con_items += 1
-                log.info(f"  ✅ Encontrados ítems relevantes")
+                log.info(f"  ✅ {con_items} días con ítems hasta ahora")
         except Exception as e:
-            log.error(f"  ❌ Error en {fs}: {e}")
+            log.error(f"  ❌ {fs}: {e}")
 
         proc += 1
         fecha_act += timedelta(days=1)
 
-        # Guardar cada 20 días
         if proc % 20 == 0:
-            data["alertas"].sort(key=lambda x:x["fecha"],reverse=True)
+            data["alertas"].sort(key=lambda x: x["fecha"], reverse=True)
             data["alertas"] = data["alertas"][:MAX]
             recalcular(data); guardar_data(data)
             log.info(f"  💾 Guardado parcial ({proc}/{total}, {con_items} con ítems)")
 
         time.sleep(SLEEP)
 
-    data["alertas"].sort(key=lambda x:x["fecha"],reverse=True)
+    data["alertas"].sort(key=lambda x: x["fecha"], reverse=True)
     data["alertas"] = data["alertas"][:MAX]
     recalcular(data); guardar_data(data)
-    log.info(f"✅ Completado: {proc} días procesados, {con_items} con resultados")
+    log.info(f"✅ Completado: {proc} días, {con_items} con resultados")
 
 
 if __name__ == "__main__":
