@@ -2,79 +2,49 @@
   "alertas": [
     {
       "fecha": "2026-04-19",
-      "total": 6,
-      "nuevos": 6,
+      "total": 3,
+      "nuevos": 3,
       "tematicas": [
-        "Código 020 · Tráfico y Seguridad Vial"
+        "Código 327 · Transporte / CAP / ADR"
       ],
       "items": [
         {
-          "id": "BOE-A-2015-11722",
-          "titulo": "RDL 6/2015 — Ley sobre Tráfico, Circulación y Seguridad Vial",
-          "departamento": "Código 020 · Tráfico y Seguridad Vial",
-          "tematica": "Código 020 · Tráfico y Seguridad Vial",
-          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2015-11722",
+          "id": "BOE-A-2007-14726",
+          "titulo": "RD 1032/2007 — CAP: Cualificación conductores (derogado por RD 284/2021)",
+          "departamento": "Código 327 · Transporte / CAP / ADR",
+          "tematica": "Código 327 · Transporte / CAP / ADR",
+          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2007-14726",
           "url_pdf": "",
           "extracto": "No se pudo generar el resumen automático.",
           "nuevo": true
         },
         {
-          "id": "BOE-A-2003-23514",
-          "titulo": "RD 1428/2003 — Reglamento General de Circulación",
-          "departamento": "Código 020 · Tráfico y Seguridad Vial",
-          "tematica": "Código 020 · Tráfico y Seguridad Vial",
-          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2003-23514",
+          "id": "BOE-A-2021-6624",
+          "titulo": "RD 284/2021 — CAP: Cualificación inicial y formación continua",
+          "departamento": "Código 327 · Transporte / CAP / ADR",
+          "tematica": "Código 327 · Transporte / CAP / ADR",
+          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2021-6624",
           "url_pdf": "",
           "extracto": "No se pudo generar el resumen automático.",
           "nuevo": true
         },
         {
-          "id": "BOE-A-1999-1826",
-          "titulo": "RD 2822/1998 — Reglamento General de Vehículos",
-          "departamento": "Código 020 · Tráfico y Seguridad Vial",
-          "tematica": "Código 020 · Tráfico y Seguridad Vial",
-          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-1999-1826",
-          "url_pdf": "",
-          "extracto": "No se pudo generar el resumen automático.",
-          "nuevo": true
-        },
-        {
-          "id": "BOE-A-2009-9481",
-          "titulo": "RD 818/2009 — Reglamento General de Conductores",
-          "departamento": "Código 020 · Tráfico y Seguridad Vial",
-          "tematica": "Código 020 · Tráfico y Seguridad Vial",
-          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2009-9481",
-          "url_pdf": "",
-          "extracto": "No se pudo generar el resumen automático.",
-          "nuevo": true
-        },
-        {
-          "id": "BOE-A-2003-19801",
-          "titulo": "RD 1295/2003 — Reglamento de Autoescuelas",
-          "departamento": "Código 020 · Tráfico y Seguridad Vial",
-          "tematica": "Código 020 · Tráfico y Seguridad Vial",
-          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2003-19801",
-          "url_pdf": "",
-          "extracto": "No se pudo generar el resumen automático.",
-          "nuevo": true
-        },
-        {
-          "id": "BOE-A-2010-3471",
-          "titulo": "RD 170/2010 — Centros de Reconocimiento de Conductores",
-          "departamento": "Código 020 · Tráfico y Seguridad Vial",
-          "tematica": "Código 020 · Tráfico y Seguridad Vial",
-          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2010-3471",
+          "id": "BOE-A-2010-15421",
+          "titulo": "Orden FOM/2607/2010 — Requisitos formadores CAP",
+          "departamento": "Código 327 · Transporte / CAP / ADR",
+          "tematica": "Código 327 · Transporte / CAP / ADR",
+          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2010-15421",
           "url_pdf": "",
           "extracto": "No se pudo generar el resumen automático.",
           "nuevo": true
         }
       ],
-      "ejecutado": "2026-04-19T21:45:46.639285"
+      "ejecutado": "2026-04-19T21:53:41.843778"
     }
   ],
   "stats": {
-    "Código 020 · Tráfico y Seguridad Vial": 6
+    "Código 327 · Transporte / CAP / ADR": 3
   },
-  "ultima_update": "2026-04-19T21:45:46.639311",
+  "ultima_update": "2026-04-19T21:53:41.843801",
   "total_alertas": 0
 }
