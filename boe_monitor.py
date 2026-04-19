@@ -52,12 +52,12 @@ CODIGOS_NORMAS = [
     # ── CÓDIGO 327: TRANSPORTE / CAP / ADR ──
     {"id": "BOE-A-1987-15801", "nombre": "Ley 16/1987 — Ordenación de los Transportes Terrestres (LOTT)",        "codigo": "327"},
     {"id": "BOE-A-1990-28440", "nombre": "RD 1211/1990 — Reglamento LOTT",                                        "codigo": "327"},
-    {"id": "BOE-A-2007-15270", "nombre": "RD 1032/2007 — CAP: Cualificación conductores profesionales",           "codigo": "327"},
-    {"id": "BOE-A-2021-3186",  "nombre": "RD 284/2021 — Modifica RD 1032/2007 CAP",                              "codigo": "327"},
-    {"id": "BOE-A-2010-18444", "nombre": "Orden FOM/2607/2010 — Centros de formación CAP",                        "codigo": "327"},
+    {"id": "BOE-A-2007-14726", "nombre": "RD 1032/2007 — CAP: Cualificación conductores (derogado por RD 284/2021)","codigo": "327"},
+    {"id": "BOE-A-2021-6624",  "nombre": "RD 284/2021 — CAP: Cualificación inicial y formación continua",        "codigo": "327"},
+    {"id": "BOE-A-2010-15421", "nombre": "Orden FOM/2607/2010 — Requisitos formadores CAP",                       "codigo": "327"},
     {"id": "BOE-A-2014-1725",  "nombre": "RD 97/2014 — Transporte de Mercancías Peligrosas por Carretera (ADR)", "codigo": "327"},
     {"id": "BOE-A-2019-9661",  "nombre": "ADR 2019 — Acuerdo Europeo Mercancías Peligrosas por Carretera",       "codigo": "327"},
-    {"id": "BOE-A-2019-2494",  "nombre": "RD 70/2019 — Modifica Reglamento LOTT y formación conductores",        "codigo": "327"},
+    {"id": "BOE-A-2019-2289",  "nombre": "RD 70/2019 — Modifica Reglamento LOTT y formación conductores",        "codigo": "327"},
     {"id": "BOE-A-2006-9974",  "nombre": "RD 640/2006 — Tiempos de conducción y descanso",                       "codigo": "327"},
 ]
 
