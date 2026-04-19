@@ -2,8 +2,8 @@
   "alertas": [
     {
       "fecha": "2026-04-19",
-      "total": 3,
-      "nuevos": 3,
+      "total": 6,
+      "nuevos": 6,
       "tematicas": [
         "Código 020 · Tráfico y Seguridad Vial"
       ],
@@ -29,6 +29,16 @@
           "nuevo": true
         },
         {
+          "id": "BOE-A-1999-1826",
+          "titulo": "RD 2822/1998 — Reglamento General de Vehículos",
+          "departamento": "Código 020 · Tráfico y Seguridad Vial",
+          "tematica": "Código 020 · Tráfico y Seguridad Vial",
+          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-1999-1826",
+          "url_pdf": "",
+          "extracto": "No se pudo generar el resumen automático.",
+          "nuevo": true
+        },
+        {
           "id": "BOE-A-2009-9481",
           "titulo": "RD 818/2009 — Reglamento General de Conductores",
           "departamento": "Código 020 · Tráfico y Seguridad Vial",
@@ -37,14 +47,34 @@
           "url_pdf": "",
           "extracto": "No se pudo generar el resumen automático.",
           "nuevo": true
+        },
+        {
+          "id": "BOE-A-2003-19801",
+          "titulo": "RD 1295/2003 — Reglamento de Autoescuelas",
+          "departamento": "Código 020 · Tráfico y Seguridad Vial",
+          "tematica": "Código 020 · Tráfico y Seguridad Vial",
+          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2003-19801",
+          "url_pdf": "",
+          "extracto": "No se pudo generar el resumen automático.",
+          "nuevo": true
+        },
+        {
+          "id": "BOE-A-2010-3471",
+          "titulo": "RD 170/2010 — Centros de Reconocimiento de Conductores",
+          "departamento": "Código 020 · Tráfico y Seguridad Vial",
+          "tematica": "Código 020 · Tráfico y Seguridad Vial",
+          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2010-3471",
+          "url_pdf": "",
+          "extracto": "No se pudo generar el resumen automático.",
+          "nuevo": true
         }
       ],
-      "ejecutado": "2026-04-19T21:32:53.325344"
+      "ejecutado": "2026-04-19T21:45:46.639285"
     }
   ],
   "stats": {
-    "Código 020 · Tráfico y Seguridad Vial": 3
+    "Código 020 · Tráfico y Seguridad Vial": 6
   },
-  "ultima_update": "2026-04-19T21:32:53.325367",
+  "ultima_update": "2026-04-19T21:45:46.639311",
   "total_alertas": 0
 }
