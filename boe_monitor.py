@@ -40,13 +40,13 @@ CODIGOS_NORMAS = [
     # ── CÓDIGO 020: TRÁFICO Y SEGURIDAD VIAL ──
     {"id": "BOE-A-2015-11722", "nombre": "RDL 6/2015 — Ley sobre Tráfico, Circulación y Seguridad Vial",          "codigo": "020"},
     {"id": "BOE-A-2003-23514", "nombre": "RD 1428/2003 — Reglamento General de Circulación",                      "codigo": "020"},
-    {"id": "BOE-A-1998-28156", "nombre": "RD 2822/1998 — Reglamento General de Vehículos",                        "codigo": "020"},
+    {"id": "BOE-A-1999-1826",  "nombre": "RD 2822/1998 — Reglamento General de Vehículos",                        "codigo": "020"},
     {"id": "BOE-A-2009-9481",  "nombre": "RD 818/2009 — Reglamento General de Conductores",                       "codigo": "020"},
-    {"id": "BOE-A-2003-21345", "nombre": "RD 1295/2003 — Reglamento de Autoescuelas",                             "codigo": "020"},
-    {"id": "BOE-A-2010-369",   "nombre": "RD 369/2010 — Modifica RD 1295/2003 Autoescuelas",                      "codigo": "020"},
-    {"id": "BOE-A-2023-24164", "nombre": "RD 1010/2023 — Modifica RD 1295/2003 Autoescuelas",                     "codigo": "020"},
+    {"id": "BOE-A-2003-19801", "nombre": "RD 1295/2003 — Reglamento de Autoescuelas",                             "codigo": "020"},
+    {"id": "BOE-A-2010-5038",  "nombre": "RD 369/2010 — Modifica RD 1295/2003 Autoescuelas",                      "codigo": "020"},
+    {"id": "BOE-A-2023-24843", "nombre": "RD 1010/2023 — Modifica RD 1295/2003 Autoescuelas",                     "codigo": "020"},
     {"id": "BOE-A-2021-3821",  "nombre": "RD 174/2021 — Profesor de Formación Vial",                              "codigo": "020"},
-    {"id": "BOE-A-2010-4191",  "nombre": "RD 170/2010 — Centros de Reconocimiento de Conductores",                "codigo": "020"},
+    {"id": "BOE-A-2010-3471",  "nombre": "RD 170/2010 — Centros de Reconocimiento de Conductores",                "codigo": "020"},
     {"id": "BOE-A-2011-13099", "nombre": "Orden INT/2323/2011 — Formación acceso progresivo permiso A",           "codigo": "020"},
 
     # ── CÓDIGO 327: TRANSPORTE / CAP / ADR ──
@@ -57,7 +57,6 @@ CODIGOS_NORMAS = [
     {"id": "BOE-A-2010-18444", "nombre": "Orden FOM/2607/2010 — Centros de formación CAP",                        "codigo": "327"},
     {"id": "BOE-A-2014-1725",  "nombre": "RD 97/2014 — Transporte de Mercancías Peligrosas por Carretera (ADR)", "codigo": "327"},
     {"id": "BOE-A-2019-9661",  "nombre": "ADR 2019 — Acuerdo Europeo Mercancías Peligrosas por Carretera",       "codigo": "327"},
-    {"id": "BOE-A-2006-16562", "nombre": "RD 1008/2006 — Formación conductores ADR",                              "codigo": "327"},
     {"id": "BOE-A-2019-2494",  "nombre": "RD 70/2019 — Modifica Reglamento LOTT y formación conductores",        "codigo": "327"},
     {"id": "BOE-A-2006-9974",  "nombre": "RD 640/2006 — Tiempos de conducción y descanso",                       "codigo": "327"},
 ]
