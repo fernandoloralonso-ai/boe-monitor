@@ -6,8 +6,7 @@
       "nuevos": 0,
       "tematicas": [],
       "items": [],
-      "eventos_normas": [],
-      "ejecutado": "2026-04-19T14:25:38.970275"
+      "ejecutado": "2026-04-19T14:35:30.367053"
     },
     {
       "fecha": "2026-04-18",
@@ -22960,6 +22959,6 @@
     "Transporte Profesional": 177,
     "CAP - Certificado de Aptitud Profesional": 99
   },
-  "ultima_update": "2026-04-19T14:25:38.970561",
+  "ultima_update": "2026-04-19T14:35:30.367345",
   "total_alertas": 90
 }
