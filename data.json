@@ -1,6 +1,27 @@
 {
   "alertas": [
     {
+      "fecha": "2026-04-20",
+      "total": 1,
+      "nuevos": 1,
+      "tematicas": [
+        "Código 327 · Transporte / CAP / ADR"
+      ],
+      "items": [
+        {
+          "id": "BOE-A-2007-14726",
+          "titulo": "RD 1032/2007 — CAP: Cualificación conductores (derogado por RD 284/2021)",
+          "departamento": "Código 327 · Transporte / CAP / ADR",
+          "tematica": "Código 327 · Transporte / CAP / ADR",
+          "url_html": "https://www.boe.es/buscar/act.php?id=BOE-A-2007-14726",
+          "url_pdf": "",
+          "extracto": "No se pudo generar el resumen automático.",
+          "nuevo": true
+        }
+      ],
+      "ejecutado": "2026-04-20T11:58:55.676554"
+    },
+    {
       "fecha": "2026-04-19",
       "total": 3,
       "nuevos": 3,
@@ -43,8 +64,8 @@
     }
   ],
   "stats": {
-    "Código 327 · Transporte / CAP / ADR": 3
+    "Código 327 · Transporte / CAP / ADR": 4
   },
-  "ultima_update": "2026-04-19T21:53:41.843801",
+  "ultima_update": "2026-04-20T11:58:55.676575",
   "total_alertas": 0
 }
