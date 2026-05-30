@@ -801,6 +801,16 @@ function injectManifest(){
 }
 injectManifest();
 
+// Service worker (solo en https/localhost; permite uso sin conexión una vez instalada).
+// Requiere el archivo sw.js junto a este archivo. Desde file:// se ignora.
+(function(){
+  if(!('serviceWorker' in navigator)) return;
+  if(location.protocol!=='https:' && location.hostname!=='localhost') return;
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
+})();
+
 let deferredPrompt=null;
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
 const ua=navigator.userAgent||'';
