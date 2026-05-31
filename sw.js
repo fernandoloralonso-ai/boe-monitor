@@ -1,16 +1,11 @@
 /* Control de Flota - Service Worker
    Precachea la app al instalar para que funcione SIN conexión.
-   Sube este archivo junto a index.html en la misma carpeta. */
+   Funciona con cualquier nombre de página (index.html, mantenimiento-flota.html, etc.).
+   Sube este archivo en la MISMA carpeta que tu HTML. */
 
-const CACHE = 'flota-cache-v1';
+const CACHE = 'flota-cache-v2';
 
-// Recursos propios de la app (mismo origen). Se cachean al instalar.
-const CORE = [
-  './',
-  './index.html'
-];
-
-// Recursos externos (fuentes). Se intentan cachear, pero si fallan no rompen la instalación.
+// Recursos externos (fuentes). Tolerante a fallos: si no cargan, no rompe la instalacion.
 const EXTRA = [
   'https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;800;900&family=Archivo+Narrow:wght@600;700&family=JetBrains+Mono:wght@400;600&display=swap'
 ];
@@ -18,9 +13,12 @@ const EXTRA = [
 self.addEventListener('install', e => {
   e.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    // los propios deben cachearse sí o sí
-    await cache.addAll(CORE);
-    // los externos, de forma tolerante a fallos
+    // No asumimos ningun nombre de archivo concreto: cacheamos la raiz del scope
+    // y la propia pagina. Todo tolerante a fallos para que un 404 nunca impida
+    // que el service worker se instale.
+    const scope = self.registration.scope;
+    const candidates = [scope, './'];
+    await Promise.allSettled(candidates.map(u => cache.add(u)));
     await Promise.allSettled(EXTRA.map(u => cache.add(u)));
     self.skipWaiting();
   })());
@@ -28,7 +26,6 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {
-    // limpiar versiones antiguas de caché
     const keys = await caches.keys();
     await Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)));
     await self.clients.claim();
@@ -39,23 +36,34 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
 
-  // Navegación (abrir la app): intenta red y cae a la copia cacheada de index.html.
+  // Navegacion (abrir la app): intenta red; si no hay, sirve la copia cacheada
+  // de ESA misma pagina (sea cual sea su nombre), o la raiz del scope como respaldo.
   if (req.mode === 'navigate') {
     e.respondWith((async () => {
+      const cache = await caches.open(CACHE);
       try {
         const net = await fetch(req);
-        const cache = await caches.open(CACHE);
-        cache.put('./index.html', net.clone());
+        cache.put(req, net.clone());
         return net;
-      } catch {
-        const cache = await caches.open(CACHE);
-        return (await cache.match('./index.html')) || (await cache.match('./')) || Response.error();
+      } catch (err) {
+        const exact = await cache.match(req);
+        if (exact) return exact;
+        const root = await cache.match(self.registration.scope);
+        if (root) return root;
+        const slash = await cache.match('./');
+        if (slash) return slash;
+        const all = await cache.keys();
+        for (const k of all) {
+          const r = await cache.match(k);
+          if (r && (r.headers.get('content-type') || '').includes('text/html')) return r;
+        }
+        return Response.error();
       }
     })());
     return;
   }
 
-  // Resto de recursos: cache-first con actualización en segundo plano.
+  // Resto de recursos: cache-first con actualizacion en segundo plano.
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const hit = await cache.match(req);
